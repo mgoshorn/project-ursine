@@ -6,22 +6,29 @@ import { CardDataPayload } from '../dto/CardDataPayload';
  * An implementation of ICardReader with additional functions allowing manual control of features.
  * This implementation is intended for use with automated testing systems.
  */
-class CardReaderTesting implements ICardReader {
+export class CardReaderTesting implements ICardReader {
 
-    resolveDelay = 0;
+    private resolveDelay: number;
 
-    constructor(resolveDelay: number) {
+    constructor(resolveDelay = 0) {
         this.resolveDelay = resolveDelay;
     }
 
     setResolveDelay(millis: number) {
         this.resolveDelay = millis;
+        return this;
     }
 
     async releaseCard(): Promise<unknown> {
         await setTimeout(this.resolveDelay);
         return;
     }
+
+    async awaitCardRemoval(): Promise<void> {
+        await setTimeout(this.resolveDelay);
+        return;
+    }
+
 
     async setReady(): Promise<unknown> {
         await setTimeout(this.resolveDelay);

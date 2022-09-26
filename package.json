@@ -2,8 +2,9 @@
   "name": "project-ursine",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.ts",
+  "main": "src/index.ts",
   "scripts": {
+    "start": "ts-node ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mitch Goshorn",
@@ -12,8 +13,11 @@
     "winston": "^3.8.2"
   },
   "devDependencies": {
+    "@types/jest": "^29.0.3",
     "@types/node": "^18.7.20",
     "@types/winston": "^2.4.4",
+    "jest": "^29.0.3",
+    "ts-jest": "^29.0.2",
     "ts-node": "^10.9.1",
     "typescript": "^4.8.3"
   }
