@@ -6,7 +6,7 @@ import { IBankAPI } from '../network/bank/bank.api';
 import { UserAccountDTO } from '../network/bank/dto/AuthenticatedUserSession';
 import { withLogger } from '../util/logger';
 import { DepositConfirmationDTO, DepositSummaryDTO, DisplayViewOpCodes } from './dtos/DisplayViewDTOs';
-import { DisplayViewResponseOpCodes } from './dtos/TransferConfirmationResponse';
+import { DisplayViewResponse, DisplayViewResponseOpCodes } from './dtos/TransferConfirmationResponse';
 import { IState } from './IState';
 import { MainMenuState } from './MainMenuState';
 
@@ -35,27 +35,36 @@ export class DepositState {
         const responsePromise = this.display.showView(DisplayView.INSERT_CASH_TO_DEPOSIT);
         const cashInsertionPromise = this.dispenser.awaitCashInsertion();
 
-        const result = Promise.race([ responsePromise, cashInsertionPromise ]);
-
-        if (typeof result === 'boolean') {
-            // In this case we detected cash insertion before any response from the display
-            const response = await responsePromise;
-            
-            // Cash was inserted, but deposit was cancelled from Display
-            if(response.opCode === DisplayViewResponseOpCodes.DEPOSIT_CANCELLED_FROM_DISPLAY) {
+        let result: Promise<boolean | DisplayViewResponse>;
+        let amountDeposited: BigInt;
+        try {
+            result = Promise.race([ responsePromise, cashInsertionPromise ]);
+    
+            if (typeof result === 'boolean') {
+                // In this case we detected cash insertion before any response from the display
+                const response = await responsePromise;
+                
+                // Cash was inserted, but deposit was cancelled from Display
+                if(response.opCode === DisplayViewResponseOpCodes.DEPOSIT_CANCELLED_FROM_DISPLAY) {
+                    return await this.cancelDeposit();
+                } else if(response.opCode !== DisplayViewResponseOpCodes.DEPOSIT_RESOLVED_NORMALLY) {
+                    log.error(`Invalid response code from display. Received ${response.opCode}. Acceptable response codes: ${[
+                        DisplayViewResponseOpCodes.DEPOSIT_RESOLVED_NORMALLY, DisplayViewResponseOpCodes.DEPOSIT_CANCELLED_FROM_DISPLAY
+                    ]}`);
+                    log.warn(`Continuing under assumption deposit was not cancelled - Customer will have chance to confirm`);
+                }
+            } else {
                 return await this.cancelDeposit();
-            } else if(response.opCode !== DisplayViewResponseOpCodes.DEPOSIT_RESOLVED_NORMALLY) {
-                log.error(`Invalid response code from display. Received ${response.opCode}. Acceptable response codes: ${[
-                    DisplayViewResponseOpCodes.DEPOSIT_RESOLVED_NORMALLY, DisplayViewResponseOpCodes.DEPOSIT_CANCELLED_FROM_DISPLAY
-                ]}`);
-                log.warn(`Continuing under assumption deposit was not cancelled - Customer will have chance to confirm`);
             }
-        } else {
-            return await this.cancelDeposit();
+            amountDeposited = await this.dispenser.countDeposit();
+
+        } catch (err) {
+            // Mechanical error encountered, cannot process deposit
+            log.error(`Error processing deposit`);
+            return this.app.createMaintenanceRequiredState();
         }
 
         // Continue processing deposit
-        const amountDeposited = await this.dispenser.countDeposit();
 
         const dto: DepositConfirmationDTO = {
             opCode: DisplayViewOpCodes.DEPOSIT_CONFIRMATION,
@@ -96,7 +105,13 @@ export class DepositState {
         }
 
         log.debug(`Deposit processed successfully`);
-        await this.dispenser.acceptDeposit();
+        let mechanicalError = false;
+        try {
+            // At this point the deposit is already successful, so mechanical errors will not fail the deposit process
+            await this.dispenser.acceptDeposit();
+        } catch (err) {
+            mechanicalError = true;
+        }
 
         const depositSummaryDTO: DepositSummaryDTO = {
             opCode: DisplayViewOpCodes.DEPOSIT_SUMMARY,
@@ -110,6 +125,10 @@ export class DepositState {
 
         log.silly('Displaying deposit summary information');
         await this.display.showView(DisplayView.DEPOSIT_SUMMARY, depositSummaryDTO);
+
+        if (mechanicalError) {
+            return this.app.createMaintenanceRequiredState();
+        }
 
         return this.app.createMainMenuState(this.userData);
     }

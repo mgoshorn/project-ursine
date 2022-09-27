@@ -16,8 +16,6 @@ export interface ICardReader {
      */
     awaitCardRemoval: () => Promise<void>;
     setReady: () => Promise<unknown>;
-    eatCard: () => Promise<unknown>;
-
 
     /**
      * Interface reads second track of card, processes raw data, and returns

@@ -52,7 +52,7 @@ interface IDispenser {
      * This function resolves when all cash has been dispersed into the till.
      * @param amount 
      */
-    disperse(amount: BigInt): Promise<void>;
+    dispense(amount: BigInt): Promise<void>;
 
     /**
      * Used to await signals indicating that the dispenser has been emptied.

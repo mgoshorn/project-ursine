@@ -6,24 +6,32 @@ export type OperationDTO = BalanceCheckOperationDTO
     | ExitOperationDTO;
 
 export type BalanceCheckOperationDTO = {
-    opCode: 'BALANCE_CHECK';
+    opCode: OperationDTOOpCodes.BALANCE_CHECK;
 }
 
 export type WithdrawOperationDTO = {
-    opCode: 'WITHDRAWAL';
+    opCode: OperationDTOOpCodes.WITHDRAWAL;
     amount: BigInt;
 }
 
 export type DepositOperationDTO = {
-    opCode: 'DEPOSIT'
+    opCode: OperationDTOOpCodes.DEPOSIT;
 }
 
 export type TransferOperationDTO = {
-    opCode: 'TRANSFER';
+    opCode: OperationDTOOpCodes.TRANSFER;
     amount: BigInt;
     targetAccount: string;
 }
 
 export type ExitOperationDTO = {
-    opCode: 'EXIT'
+    opCode: OperationDTOOpCodes.EXIT;
 }
+
+export enum OperationDTOOpCodes {
+    EXIT = 'EXIT',
+    TRANSFER = 'TRANSFER',
+    DEPOSIT = 'DEPOSIT',
+    WITHDRAWAL = 'WITHDRAWAL',
+    BALANCE_CHECK = 'BALANCE_CHECK',
+} 

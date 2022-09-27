@@ -1,7 +1,7 @@
 import { version, name } from '../package.json';
 import { App } from './App';
 import { CardReaderTesting } from './hardware/CardReader/impl/CardReaderTesting';
-import { DispenserTestImplementation } from './hardware/CashDispenser/impl/DispenserTesting';
+import { DispenserTestImplementation } from './__test__/test-implementations/DispenserTesting';
 import { TouchDisplayTesting } from './hardware/TouchDisplay/impl/TouchDisplayTesting';
 import { withLogger } from './util/logger';
 

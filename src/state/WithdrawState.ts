@@ -23,7 +23,7 @@ export class WithdrawState implements IState {
         log.debug(`Creating WithdrawState for session with ID: ${userData.sessionToken}`);
     }
 
-    async process(): Promise<MainMenuState> {
+    async process(): Promise<IState> {
         // Validate withdrawal will not exceed account limit
         if (this.withdrawDTO.amount > this.userData.withdrawalLimitRemaining) {
             await this.display.showErrorPrompt(DisplayErrorPrompt.EXCEEDS_ACCOUNT_LIMIT);
@@ -62,20 +62,31 @@ export class WithdrawState implements IState {
 
         // Mechanically release funds
         try {
-            await this.dispenser.disperse(this.withdrawDTO.amount);
+            await this.dispenser.dispense(this.withdrawDTO.amount);
         } catch (err) {
             // Credit account in case of mechanical failure
             await this.bank.creditAccount(this.userData.accountNumber, this.withdrawDTO.amount, this.userData.sessionToken, 'Withdrawal Credit - Mechanical Dispersal Failure');
+            return this.app.createMaintenanceRequiredState();
         }
 
         // Show take cash prompt and await emptying of dispenser
-        const [ closePrompt ] = await Promise.all([
+        const [ closePrompt, dispenserResponse ] = await Promise.allSettled([
             this.display.showPrompt(DisplayPrompt.RETRIEVE_DISPENSED_FUNDS),
             this.dispenser.awaitDispenserEmptied()
         ]);
         
-        // end prompt message now that cash has been taken
-        await closePrompt();
+        if (closePrompt.status === "rejected") {
+            log.warn(`Unexpected promise rejection from display`);
+        } else {
+            // end prompt message now that cash has been taken
+            await closePrompt.value();
+        }
+
+        if (dispenserResponse.status === 'rejected') {
+            log.error(`Mechanical error detected while awaiting dispenser emptying, return to MaintenanceMode`);
+            return this.app.createMaintenanceRequiredState();
+        }
+
 
         return this.app.createMainMenuState(this.userData);
     }

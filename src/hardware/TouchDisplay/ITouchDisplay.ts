@@ -5,7 +5,12 @@ import { OperationDTO } from './dto/OperationPayload';
 const displayOnly: DisplayOnlyDTO = { opCode: DisplayViewOpCodes.DISPLAY_ONLY }
 export interface ITouchDisplay {
     awaitUserOperation(): Promise<OperationDTO>;
-    requestPINEntry(): Promise<number>;
+
+    /**
+     * Requests display to show a prompt for the user to enter their PIN.
+     * May return undefined in the case that the user cancels.
+     */
+    requestPINEntry(): Promise<number | undefined>;
     showErrorPrompt(error: DisplayErrorPrompt): Promise<void>;
 
     /**
@@ -46,6 +51,8 @@ export enum DisplayErrorPrompt {
     NETWORK_FAILURE = 'NETWORK_FAILURE',
     EXCEEDS_ATM_AVAILABLE_FUNDS = 'EXCEEDS_ATM_AVAILABLE_FUNDS',
     UNKNOWN_ERROR = 'UNKNOWN_ERROR',
+    MAINTENANCE_REQUIRED = 'MAINTENANCE_REQUIRED',
+    ATM_HARDWARE_ERROR = 'ATM_HARDWARE_ERROR',
 }
 
 export enum DisplayPrompt {
