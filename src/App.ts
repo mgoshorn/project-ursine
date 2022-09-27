@@ -2,7 +2,7 @@ import { withLogger } from './util/logger';
 import { ICardReader } from './hardware/CardReader/ICardReader';
 import { IState } from './state/IState';
 import { AwaitingCustomerState } from './state/AwaitingCustomerState';
-import { ITouchDisplay } from './hardware/TouchDisplay/ITouchDisplay';
+import { DisplayErrorPrompt, ITouchDisplay } from './hardware/TouchDisplay/ITouchDisplay';
 import { MainMenuState } from './state/MainMenuState';
 import { BalanceCheckState } from './state/BalanceCheckState';
 import { UserAccountDTO } from './network/bank/dto/AuthenticatedUserSession';
@@ -50,6 +50,15 @@ export class App {
 
     public createMaintenanceRequiredState() {
         return new MaintenanceRequiredState(this, this.display);
+    }
+
+    public async endSessionWithDisplayError(error: DisplayErrorPrompt) {
+        await Promise.all([
+            await this.display.showErrorPrompt(error),
+            await this.cardReader.releaseCard()
+        ]);
+        await this.cardReader.awaitCardRemoval();
+        return this.createAwaitingCustomerState();
     }
 
     async start() {

@@ -4,7 +4,6 @@ import { ICardReader } from '../hardware/CardReader/ICardReader';
 import { DisplayErrorPrompt, ITouchDisplay } from '../hardware/TouchDisplay/ITouchDisplay';
 import { IBankAPI } from '../network/bank/bank.api';
 import { UserAccountDTO } from '../network/bank/dto/AuthenticatedUserSession';
-import { endSessionWithDisplayError } from './common';
 import { IState } from './IState';
 import { withLogger } from '../util/logger';
 import { CardDataPayload } from '../hardware/CardReader/dto/CardDataPayload';
@@ -38,14 +37,14 @@ export class AwaitingCustomerState implements IState {
         
         if (!cardData) {
             log.debug(`Unable to read card data, releasing card`);
-            await endSessionWithDisplayError(this.display, DisplayErrorPrompt.CARD_UNREADABLE, this.cardReader);
+            await this.app.endSessionWithDisplayError(DisplayErrorPrompt.CARD_UNREADABLE);
             return this;
         }
 
         // Check, handle card expired
         if (cardData.expirationDate.valueOf() < new Date().valueOf()) {
             log.debug(`Inserted card expired, releasing card`);
-            await endSessionWithDisplayError(this.display, DisplayErrorPrompt.CARD_EXPIRED, this.cardReader);
+            await this.app.endSessionWithDisplayError(DisplayErrorPrompt.CARD_EXPIRED);
             return this;
         }
         
@@ -63,14 +62,14 @@ export class AwaitingCustomerState implements IState {
         } catch (err) {
             if (err instanceof NetworkAccessError) {
                 log.warn(`Unable to reach bank API to authenticate ATM user`);
-                await endSessionWithDisplayError(this.display, DisplayErrorPrompt.NETWORK_FAILURE, this.cardReader);
+                await this.app.endSessionWithDisplayError(DisplayErrorPrompt.NETWORK_FAILURE);
                 return this;
             }
         }
         
         if (!customerData) {
             log.debug('Customer data not retrieved with provided card data and PIN')
-            await endSessionWithDisplayError(this.display, DisplayErrorPrompt.INVALID_PIN, this.cardReader);
+            await this.app.endSessionWithDisplayError(DisplayErrorPrompt.INVALID_PIN);
             return this;
         }
 
