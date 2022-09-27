@@ -7,4 +7,5 @@ export class TouchDisplayTesting implements ITouchDisplay {
     showErrorPrompt = jest.fn();
     awaitUserOperation = jest.fn();
     requestPINEntry = jest.fn();
+    sendCashInsertedEvent = jest.fn();
 }

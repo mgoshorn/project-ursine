@@ -32,6 +32,14 @@ export interface ITouchDisplay {
      * @param payload 
      */
     showView(view: DisplayView, payload?: DisplayViewPayload): Promise<DisplayViewResponse>;
+
+    /**
+     * Sends an event to the display system that cash has been inserted.
+     * This is used to alert the display to close view shown by
+     * INSERT_CASH_TO_DEPOSIT as a response to cash being inserted. Otherwise
+     * this view will not resolve unless the user cancels through the display.
+     */
+    sendCashInsertedEvent(): Promise<undefined>;
 }
 
 export enum DisplayErrorPrompt {

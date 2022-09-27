@@ -34,13 +34,16 @@ export class DepositState {
         const responsePromise = this.display.showView(DisplayView.INSERT_CASH_TO_DEPOSIT);
         const cashInsertionPromise = this.dispenser.awaitCashInsertion();
 
-        let result: Promise<boolean | DisplayViewResponse>;
+        let result: boolean | DisplayViewResponse;
         let amountDeposited: BigInt;
         try {
-            result = Promise.race([ responsePromise, cashInsertionPromise ]);
-    
+            // Capture the first promise resolution
+            result = await Promise.race([ responsePromise, cashInsertionPromise ]);
+
             if (typeof result === 'boolean') {
                 // In this case we detected cash insertion before any response from the display
+                log.debug('Detected cash insertion, checking menu interactions');
+                await this.display.sendCashInsertedEvent();
                 const response = await responsePromise;
                 
                 // Cash was inserted, but deposit was cancelled from Display
@@ -53,8 +56,13 @@ export class DepositState {
                     log.warn(`Continuing under assumption deposit was not cancelled - Customer will have chance to confirm`);
                 }
             } else {
+                // User activated a cancel button on display prior to inserting cash
+                log.debug(`Deposit cancelled by menu before detecting cash insertion`);
                 return await this.cancelDeposit();
             }
+
+            // get count of inserted cash
+            log.debug(`Counting cash deposited into dispenser`);
             amountDeposited = await this.dispenser.countDeposit();
 
         } catch (err) {
