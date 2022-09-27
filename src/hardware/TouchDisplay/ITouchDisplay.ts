@@ -53,6 +53,7 @@ export enum DisplayErrorPrompt {
     UNKNOWN_ERROR = 'UNKNOWN_ERROR',
     MAINTENANCE_REQUIRED = 'MAINTENANCE_REQUIRED',
     ATM_HARDWARE_ERROR = 'ATM_HARDWARE_ERROR',
+    INVALID_AMOUNT = 'INVALID_AMOUNT',
 }
 
 export enum DisplayPrompt {

@@ -23,6 +23,12 @@ export class TransferState {
     }
 
     async process(): Promise<IState> {
+        // Transfer amount must be positive
+        if (this.transferOperation.amount <= 0n) {
+            await this.display.showErrorPrompt(DisplayErrorPrompt.INVALID_AMOUNT);
+            return this.app.createMainMenuState(this.userData);
+        }
+
         // Verify request would not overrun withdrawal/transfer limit
         if (this.transferOperation.amount > this.userData.withdrawalLimitRemaining) {
             await this.display.showErrorPrompt(DisplayErrorPrompt.EXCEEDS_ACCOUNT_LIMIT);
@@ -70,21 +76,30 @@ Expected: ${DisplayViewResponseOpCodes.TRANSFER_CONFIRMATION_RESPONSE}`)
             // Attempt funds transfer
             try {
                 await this.bank.executeTransfer(this.userData.accountNumber, this.transferOperation.targetAccount, this.transferOperation.amount, this.userData.sessionToken);
-                await this.display.showView(DisplayView.TRANSFER_SUCCESS);
             } catch (err) {
                 // Handle potential failure states
                 if (err instanceof NetworkAccessError) {
+                    log.warn(`NetworkAccessError (${err.message}) occurred while processing transfer. Transaction cancelled. Caused by: ${err.stack}`)
                     await this.display.showErrorPrompt(DisplayErrorPrompt.NETWORK_FAILURE);
+                    return this.app.createMainMenuState(this.userData)
                 }
                 if (err instanceof TransactionConflictError) {
+                    log.debug(`Transaction conflict occurred while executing transfer. Transaction cancelled.`)
                     await this.display.showErrorPrompt(DisplayErrorPrompt.ACCOUNT_CHANGED);
+                    return this.app.createMainMenuState(this.userData)
+
                 }
+                log.error(`Unexpected error (${err.message}) occurred while processing transfer. Caused by: ${err.stack}`)
+                return this.app.createMainMenuState(this.userData)
             }
         } else {
+            log.debug(`Showing action cancelled view`);
             // Show transfer cancelled message
             await this.display.showView(DisplayView.ACTION_CANCELLED);
         }
 
+        log.debug(`Showing transfer success view`);
+        await this.display.showView(DisplayView.TRANSFER_SUCCESS);
         // Return to main menu
         return this.app.createMainMenuState(this.userData);
     }
