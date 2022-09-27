@@ -22,6 +22,12 @@ export class WithdrawState implements IState {
     }
 
     async process(): Promise<IState> {
+        // Validate amount
+        if (this.withdrawDTO.amount <= 0n) {
+            log.warn(`User attempted to withdraw non-positive amount. This should not be possible.`);
+            return this.app.createMainMenuState(this.userData);
+        }
+
         // Validate withdrawal will not exceed account limit
         if (this.withdrawDTO.amount > this.userData.withdrawalLimitRemaining) {
             await this.display.showErrorPrompt(DisplayErrorPrompt.EXCEEDS_ACCOUNT_LIMIT);
