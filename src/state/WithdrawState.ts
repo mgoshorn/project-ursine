@@ -1,12 +1,10 @@
 import { App } from '../App';
-import { ICardReader } from '../hardware/CardReader/ICardReader';
 import { DisplayErrorPrompt, DisplayPrompt, ITouchDisplay } from '../hardware/TouchDisplay/ITouchDisplay';
 import { IBankAPI } from '../network/bank/bank.api';
 import { IState } from './IState';
 import { withLogger } from '../util/logger';
 import { WithdrawOperationDTO } from '../hardware/TouchDisplay/dto/OperationPayload';
 import { UserAccountDTO } from '../network/bank/dto/AuthenticatedUserSession';
-import { MainMenuState } from './MainMenuState';
 import { NetworkAccessError, TransactionConflictError } from '../errors/UrsineErrors';
 
 const log = withLogger('WithdrawState');

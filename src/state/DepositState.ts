@@ -8,7 +8,6 @@ import { withLogger } from '../util/logger';
 import { DepositConfirmationDTO, DepositSummaryDTO, DisplayViewOpCodes } from './dtos/DisplayViewDTOs';
 import { DisplayViewResponse, DisplayViewResponseOpCodes } from './dtos/TransferConfirmationResponse';
 import { IState } from './IState';
-import { MainMenuState } from './MainMenuState';
 
 const log = withLogger('DepositState');
 

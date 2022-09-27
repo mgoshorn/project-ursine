@@ -2,7 +2,6 @@ import { App } from '../App';
 import { DisplayErrorPrompt, DisplayView, ITouchDisplay } from '../hardware/TouchDisplay/ITouchDisplay';
 import { DisplayBalanceDTO, DisplayViewOpCodes } from './dtos/DisplayViewDTOs';
 import { IState } from './IState';
-import { MainMenuState } from './MainMenuState';
 import { withLogger } from '../util/logger';
 import { UserAccountDTO } from '../network/bank/dto/AuthenticatedUserSession';
 import { IBankAPI } from '../network/bank/bank.api';
@@ -34,7 +33,7 @@ export class BalanceCheckState implements IState {
             log.error(`Unexpected error encountered while attempting to retrieve balance. Caused by: ${err.stack}`);
             return this.app.endSessionWithDisplayError(DisplayErrorPrompt.UNKNOWN_ERROR);
         }
-        
+
         const monitorMessage: DisplayBalanceDTO = {
             opCode: DisplayViewOpCodes.BALANCE,
             data: {

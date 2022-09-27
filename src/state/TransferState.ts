@@ -1,7 +1,7 @@
 import { App } from '../App';
 import { NetworkAccessError, TransactionConflictError } from '../errors/UrsineErrors';
 import { TransferOperationDTO } from '../hardware/TouchDisplay/dto/OperationPayload';
-import { DisplayErrorPrompt, DisplayPrompt, DisplayView, ITouchDisplay } from '../hardware/TouchDisplay/ITouchDisplay';
+import { DisplayErrorPrompt, DisplayView, ITouchDisplay } from '../hardware/TouchDisplay/ITouchDisplay';
 import { IBankAPI } from '../network/bank/bank.api';
 import { UserAccountDTO } from '../network/bank/dto/AuthenticatedUserSession';
 import { withLogger } from '../util/logger';

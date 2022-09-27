@@ -1,5 +1,3 @@
-import { setTimeout } from 'timers/promises';
-import { CardDataPayload } from '../../hardware/CardReader/dto/CardDataPayload';
 import { ICardReader } from '../../hardware/CardReader/ICardReader';
 
 /**

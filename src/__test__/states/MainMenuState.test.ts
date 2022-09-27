@@ -1,7 +1,5 @@
 import { App } from '../../App';
-import { ICardReader } from '../../hardware/CardReader/ICardReader';
-import { OperationDTO, OperationDTOOpCodes } from '../../hardware/TouchDisplay/dto/OperationPayload';
-import { ITouchDisplay } from '../../hardware/TouchDisplay/ITouchDisplay';
+import { OperationDTOOpCodes } from '../../hardware/TouchDisplay/dto/OperationPayload';
 import { UserAccountDTO } from '../../network/bank/dto/AuthenticatedUserSession';
 import { AwaitingCustomerState } from '../../state/AwaitingCustomerState';
 import { BalanceCheckState } from '../../state/BalanceCheckState';
