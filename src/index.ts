@@ -11,11 +11,14 @@ log.info(`Application ${name} (${version}) starting up.`);
 
 (async () => {
 
-let app: App = env === 'production'
-    ? new App(new CardReaderTesting(1000), new DispenserTestImplementation(1000), new TouchDisplayTesting(1000))
-    : new App(new CardReaderTesting(1000), new DispenserTestImplementation(1000), new TouchDisplayTesting(1000))
+/**
+ * TODO: Create API implementations and wire them up to start app here (currently out of scope) 
+ */
+// let app: App = env === 'production'
+//     ? new App()
+//     : new App()
 
-await app.start();
+// await app.start();
 
 log.info(`Application shutting down`);
 

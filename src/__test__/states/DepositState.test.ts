@@ -1,7 +1,7 @@
 import { App } from '../../App';
 import { UserAccountDTO } from '../../network/bank/dto/AuthenticatedUserSession';
 import { DepositState } from '../../state/DepositState';
-import { DepositCancelledFromDisplayDTO, DepositConfirmationReponseDTO, DepositResolvedNormallyDTO, DisplayViewResponse, DisplayViewResponseOpCodes } from '../../state/dtos/TransferConfirmationResponse';
+import { DepositCancelledFromDisplayDTO, DepositResolvedNormallyDTO, DisplayViewResponseOpCodes } from '../../state/dtos/TransferConfirmationResponse';
 import { MainMenuState } from '../../state/MainMenuState';
 import { BankTestingImpl } from '../test-implementations/BankTestingImpl';
 import { CardReaderTesting } from '../test-implementations/CardReaderTesting';

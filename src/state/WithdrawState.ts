@@ -25,11 +25,13 @@ export class WithdrawState implements IState {
         // Validate amount
         if (this.withdrawDTO.amount <= 0n) {
             log.warn(`User attempted to withdraw non-positive amount. This should not be possible.`);
+            await this.display.showErrorPrompt(DisplayErrorPrompt.INVALID_AMOUNT);
             return this.app.createMainMenuState(this.userData);
         }
 
         // Validate withdrawal will not exceed account limit
         if (this.withdrawDTO.amount > this.userData.withdrawalLimitRemaining) {
+            log.debug(`Requested withdrawal amount exceeds remaining withdrawal limit`);
             await this.display.showErrorPrompt(DisplayErrorPrompt.EXCEEDS_ACCOUNT_LIMIT);
             return this.app.createMainMenuState(this.userData);
         }
@@ -37,6 +39,7 @@ export class WithdrawState implements IState {
         // Validate withdrawal will not result in negative balance
         const balance = await this.bank.retrieveAccountBalance(this.userData.accountNumber, this.userData.sessionToken);
         if (balance <= this.withdrawDTO.amount) {
+            log.debug(`Requested withdrawal amount exceeds remaining balance`);
             await this.display.showErrorPrompt(DisplayErrorPrompt.INSUFFICIENT_FUNDS);
             return this.app.createMainMenuState(this.userData);
         }
@@ -61,6 +64,8 @@ export class WithdrawState implements IState {
                 return this.app.createMainMenuState(this.userData);
             } else {
                 log.error(`Unexpected error occurred processing withdrawal: ${err.message}`);
+                await this.display.showErrorPrompt(DisplayErrorPrompt.UNKNOWN_ERROR);
+                return this.app.createMainMenuState(this.userData);
             }
         }
 
@@ -69,6 +74,7 @@ export class WithdrawState implements IState {
             await this.dispenser.dispense(this.withdrawDTO.amount);
         } catch (err) {
             // Credit account in case of mechanical failure
+            await this.display.showErrorPrompt(DisplayErrorPrompt.ATM_HARDWARE_ERROR);
             await this.bank.creditAccount(this.userData.accountNumber, this.withdrawDTO.amount, this.userData.sessionToken, 'Withdrawal Credit - Mechanical Dispersal Failure');
             return this.app.createMaintenanceRequiredState();
         }
@@ -88,9 +94,9 @@ export class WithdrawState implements IState {
 
         if (dispenserResponse.status === 'rejected') {
             log.error(`Mechanical error detected while awaiting dispenser emptying, return to MaintenanceMode`);
+            await this.display.showErrorPrompt(DisplayErrorPrompt.MAINTENANCE_REQUIRED);
             return this.app.createMaintenanceRequiredState();
         }
-
 
         return this.app.createMainMenuState(this.userData);
     }
