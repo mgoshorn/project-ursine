@@ -47,7 +47,7 @@ export class WithdrawState implements IState {
         // Validate that ATM has available funds to disperse requested amount
         const available = await this.dispenser.fundsAvailable(this.withdrawDTO.amount);
         if (!available) {
-            log.warn(`Requested withdrawal amount for session ${this.userData.sessionToken} exceeds mechanically available funds and could not be completed.`);
+            log.warn(`Requested withdrawal amount exceeds mechanically available funds and could not be completed.`);
             await this.display.showErrorPrompt(DisplayErrorPrompt.EXCEEDS_ATM_AVAILABLE_FUNDS);
             return this.app.createMainMenuState(this.userData);
         }

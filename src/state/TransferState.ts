@@ -65,8 +65,7 @@ export class TransferState {
         const response = await this.display.showView(DisplayView.TRANSFER_CONFIRMATION, dto);
 
         if (response.opCode !== DisplayViewResponseOpCodes.TRANSFER_CONFIRMATION_RESPONSE) {
-            log.error(`Invalid operational code returned from display for transfer opration \
-using session ${this.userData.sessionToken}. Received code: ${response.opCode}. \
+            log.error(`Invalid operational code returned from display for transfer opration. Received code: ${response.opCode}. \
 Expected: ${DisplayViewResponseOpCodes.TRANSFER_CONFIRMATION_RESPONSE}`)
             await this.display.showErrorPrompt(DisplayErrorPrompt.INVALID_DISPLAY_PAYLOAD);
             return this.app.createMainMenuState(this.userData);
