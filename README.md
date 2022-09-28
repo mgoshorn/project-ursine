@@ -1,3 +1,17 @@
+# Cloning Project
+
+## SSH clone
+
+```
+git clone git@github.com:mgoshorn/project-ursine.git
+```
+
+## HTTPS clone
+
+```
+git clone https://github.com/mgoshorn/project-ursine.git
+```
+
 # Running Tests
 
 With NPM Installed:
