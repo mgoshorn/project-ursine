@@ -11,6 +11,13 @@ export interface ITouchDisplay {
      * May return undefined in the case that the user cancels.
      */
     requestPINEntry(): Promise<number | undefined>;
+    
+    /**
+     * Instructs the display to show an error message with
+     * the provided ErrorCode. The function resolves when the user
+     * closes the error prompt.
+     * @param error 
+     */
     showErrorPrompt(error: DisplayErrorPrompt): Promise<void>;
 
     /**

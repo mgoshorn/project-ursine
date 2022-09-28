@@ -8,14 +8,13 @@ export interface ICardReader {
      * Mechanically releases that card, leaving the card in a position in which a customer
      * can remove it.
      */
-    releaseCard: () => Promise<unknown>;
+    releaseCard: () => Promise<void>;
 
     /**
      * Awaits the physical removal of the card from the card reader from the dispenser.
      * This function should be paired with displays that remind the user to take their card.
      */
     awaitCardRemoval: () => Promise<void>;
-    setReady: () => Promise<unknown>;
 
     /**
      * Interface reads second track of card, processes raw data, and returns
